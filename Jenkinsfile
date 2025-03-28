@@ -30,9 +30,9 @@ pipeline {
                     // Example installation for Linux. Adjust for your OS
                     sh '''
                         curl -sSL https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip -o consul.zip 
-                        ls -la 
                         unzip consul.zip
-                        chmod +x consul
+                        ls -last
+                        chmod +x consul && rm -rf consul.zip
                         ls -last
                         export PATH=$PWD:$PATH
                         consul --version
