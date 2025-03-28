@@ -29,7 +29,7 @@ pipeline {
                 script {
                     // Example installation for Linux. Adjust for your OS
                     sh '''
-                        wget -O- https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip | gunzip > consul
+                        curl -sSL https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip -o consul.zip
                         chmod +x consul
                         export PATH=$PWD:$PATH
                         consul --version
