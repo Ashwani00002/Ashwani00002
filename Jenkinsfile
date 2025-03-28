@@ -23,21 +23,22 @@ pipeline {
                 checkout scm
             }
         }
-/*
-        // stage('Install Consul Agent') {
-        //     steps {
-        //         script {
-        //             // Example installation for Linux. Adjust for your OS
-        //             sh '''
-        //                 wget -O- https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip | gunzip > consul
-        //                 chmod +x consul
-        //                 export PATH=$PWD:$PATH
-        //                 consul --version
-        //             '''
-        //         }
-        //     }
-        // }
 
+        stage('Install Consul Agent') {
+            steps {
+                script {
+                    // Example installation for Linux. Adjust for your OS
+                    sh '''
+                        wget -O- https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip | gunzip > consul
+                        chmod +x consul
+                        export PATH=$PWD:$PATH
+                        consul --version
+                        ls -la
+                    '''
+                }
+            }
+        }
+/*
         // stage('Process Config Map JSON & Upload to Consul') {
         //     steps {
         //         script {
