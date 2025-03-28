@@ -29,11 +29,9 @@ pipeline {
                 script {
                     // Example installation for Linux. Adjust for your OS
                     sh '''
-                        curl -sSL https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip -o consul.zip
+                        curl -sSL https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip -o consul.zip 
                         ls -la 
-                        tar
-                        apt-get update
-                        apt-get install -y wget zip
+                        gzip
                         chmod +x consul
                         export PATH=$PWD:$PATH
                         consul --version
