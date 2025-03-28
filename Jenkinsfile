@@ -37,6 +37,9 @@ pipeline {
                         export PATH=$PWD:$PATH
                         consul --version
                         ls -la
+                        curl http://localhost:8500/ui/us-central-1/kv -I
+                        ls -l
+                        curl localhost:8080 -I
                     '''
                 }
             }
