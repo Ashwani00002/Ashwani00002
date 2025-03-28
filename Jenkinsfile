@@ -31,7 +31,7 @@ pipeline {
                     sh '''
                         curl -sSL https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip -o consul.zip
                         ls -la 
-                        sudo apt-get update
+                        apt-get update
                         apt-get install -y wget zip
                         chmod +x consul
                         export PATH=$PWD:$PATH
