@@ -68,18 +68,18 @@ stage('Install Consul Agent') {
         //     }
         // }
 
-// stage('Process Config Map JSON & Upload to Consul') {
-//     steps {
-//         script {
-//             def jFile = readJSON file: 'config-map-env.json'
-//             // def props = readJSON text: '{ "key": "value" }'
-//             jFile.each { key, value ->
-//                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-//                 sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
-//             }
-//         }
-//     }
-// }
+stage('Process Config Map JSON & Upload to Consul') {
+    steps {
+        script {
+            def jFile = readJSON file: 'config-map-env.json'
+            // def props = readJSON text: '{ "key": "value" }'
+            jFile.each { key, value ->
+                def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+                sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
+            }
+        }
+    }
+}
 
 
         // stage('Process Config Map JSON & Upload to Consul') {
