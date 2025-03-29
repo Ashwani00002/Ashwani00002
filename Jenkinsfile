@@ -34,29 +34,27 @@ stage('Install Consul Agent & Process Config') {
             sh "curl -sSL ${consulUrl} -o ${consulZip}"
             unzip zipFile: consulZip
 
-            sh '''
-                ls -last
-                chmod +x consul && rm -rf consul.zip
-                ls -last
-                export PATH=$PWD:$PATH
-                consul --version
-                ls -la
-                curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
-                ls -l
-            '''
+            // sh '''
+            //     ls -last
+            //     chmod +x consul && rm -rf consul.zip
+            //     ls -last
+            //     export PATH=$PWD:$PATH
+            //     consul --version
+            //     ls -la
+            //     curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
+            //     ls -l
+            // '''
 
             // Process Config Map JSON & Upload to Consul
             def jFile = readJSON file: 'config-map-env.json'
             jFile.each { key, value ->
                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
                 sh '''
-                echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+                echo "*******************************************"
                 ls -la
                 echo "${env.CONSUL_HTTP_ADDR}"
-                curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
                 curl env.CONSUL_HTTP_ADDR/v1/kv/\\?recurse=true
-                ${DB_ENGINE}
-                echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
+                echo "*******************************************"
                 '''
             }
         }
