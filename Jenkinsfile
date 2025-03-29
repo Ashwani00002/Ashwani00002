@@ -44,22 +44,40 @@ pipeline {
             }
         }
 
-        stage('Process Config Map JSON & Upload to Consul') {
-            steps {
-                script {
-                    def jsonFile = 'config-map-env.json'
-                    if (fileExists(jsonFile)) {
-                        def config = readJSON file: jsonFile
-                        config.each { key, value ->
-                            def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-                            sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
-                        }
-                    } else {
-                        error "config-map-env.json not found!"
-                    }
-                }
+stage('Process Config Map JSON & Upload to Consul') {
+    steps {
+        script {
+            def jFile = readJSON file: 'config-map-env.json'
+            jFile.each { key, value ->
+                def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+                sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
             }
         }
+    }
+}
+
+
+        // stage('Process Config Map JSON & Upload to Consul') {
+        //     steps {
+        //         script {
+        //             def jFile = readJSON file: 'config-map-env.json'
+        //             // def jsonFile = 'config-map-env.json'
+        //             if (fileExists(jFile)) {
+        //                 def config = readJSON file: jsonFile
+        //                 config.each { key, value ->
+        //                     def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+        //                     sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
+        //                 }
+        //             } else {
+        //                 error "config-map-env.json not found!"
+        //             }
+        //         }
+        //     }
+        // }
+
+
+
+
 
     }
 }
