@@ -37,7 +37,8 @@ pipeline {
                         export PATH=$PWD:$PATH
                         consul --version
                         ls -la
-                        curl http://54.81.175.213:8500/v1/kv/\?recurse=true
+                        curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
+                        ls -l
                     '''
                 }
             }
