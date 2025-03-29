@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        CONSUL_HTTP_ADDR = 'http://54.81.175.213:8500' // Replace with your Consul endpoint
+        CONSUL_HTTP_ADDR = 'http://54.81.175.213:8500/v1/kv' // Replace with your Consul endpoint
         
     }
 
@@ -55,8 +55,9 @@ stage('Install Consul Agent & Process Config') {
                 echo $CONSUL_HTTP_ADDR
                 echo $BRANCH_NAME
                 pwd
-                curl $CONSUL_HTTP_ADDR/v1/kv/\\?recurse=true
+                curl $CONSUL_HTTP_ADDR/\\?recurse=true
                 echo "*******************************************"
+                curl -k --request GET $CONSUL_HTTP_ADDR/redis/config/devops
                 '''
             }
         }
