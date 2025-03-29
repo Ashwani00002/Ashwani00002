@@ -54,10 +54,11 @@ stage('Install Consul Agent & Process Config') {
                 ls -la
                 echo $CONSUL_HTTP_ADDR
                 echo $BRANCH_NAME
-                pwd
                 curl $CONSUL_HTTP_ADDR/\\?recurse=true
                 echo "*******************************************"
                 echo ${consulKey}
+                pwd 
+                echo ${value}
                 curl -k --request PUT -d "${value}" "${CONSUL_HTTP_ADDR}/${consulKey}"
                 '''
             }
