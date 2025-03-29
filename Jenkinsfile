@@ -57,7 +57,8 @@ stage('Install Consul Agent & Process Config') {
                 pwd
                 curl $CONSUL_HTTP_ADDR/\\?recurse=true
                 echo "*******************************************"
-                curl -k --request GET $CONSUL_HTTP_ADDR/redis/config/devops
+                // curl -k --request PUT $CONSUL_HTTP_ADDR/redis/config/devops
+                curl -k --request PUT $CONSUL_HTTP_ADDR/${consulKey} ${value}
                 '''
             }
         }
