@@ -57,6 +57,7 @@ stage('Install Consul Agent & Process Config') {
                 pwd
                 curl $CONSUL_HTTP_ADDR/\\?recurse=true
                 echo "*******************************************"
+                echo ${consulKey}
                 curl -k --request PUT -d "${value}" "${CONSUL_HTTP_ADDR}/${consulKey}"
                 '''
             }
