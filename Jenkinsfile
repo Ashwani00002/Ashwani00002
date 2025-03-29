@@ -48,7 +48,10 @@ stage('Install Consul Agent & Process Config') {
             def jFile = readJSON file: 'config-map-env.json'
             jFile.each { key, value ->
                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-                sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
+                sh "
+                ls -la
+                consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'
+                "
             }
         }
     }
