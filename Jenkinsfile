@@ -39,11 +39,10 @@ pipeline {
                         ls -la
                         curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
                         echo "***************************************************"
-                        while read -r key
-                        do    
-                            value=`curl --silent "http://54.81.175.213:8500/v1/kv/$key" | jq -r '.[].Value' | base64 --decode`
-                            echo "$key - $value"
-                        done < <(curl --silent "http://54.81.175.213:8500/v1/kv/?keys"| jq -r '.[]')
+                        while read -r key; do
+                        value=$(curl --silent "http://54.81.175.213:8500/v1/kv/$key" | jq -r '.[].Value' | base64 --decode)
+                        echo "$key -- $value"
+                        done < <(curl --silent "http://54.81.175.213:8500/v1/kv/\?keys" | jq -r '.[]')
                         echo "***************************************************"
                     '''
                 }
