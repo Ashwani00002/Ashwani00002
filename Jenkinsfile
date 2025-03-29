@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     environment {
-        CONSUL_ENDPOINT = 'http://54.81.175.213:8500/v1/kv/' // Replace with your Consul endpoint
+        CONSUL_HTTP_ADDR = 'http://54.81.175.213:8500/v1/kv/' // Replace with your Consul endpoint
+        
     }
 
     stages {
@@ -49,8 +50,10 @@ stage('Install Consul Agent & Process Config') {
             jFile.each { key, value ->
                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
                 sh '''
+                echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
                 ls -la
-                consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'
+                consul kv put -http-addr=${env.CONSUL_HTTP_ADDR}/v1/kv/\\?recurse=true
+                echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
                 '''
             }
         }
