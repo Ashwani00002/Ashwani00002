@@ -46,9 +46,10 @@ stage('Install Consul Agent & Process Config') {
             // '''
 
             // Process Config Map JSON & Upload to Consul
-            def jFile = readJSON file: 'config-map-env.json'
+            def jFile = readJSON file: './config-map-env.json'
             jFile.each { key, value ->
                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+                println consulKey
                 sh '''
                 echo "*******************************************"
                 ls -la
