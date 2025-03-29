@@ -46,8 +46,9 @@ stage('Install Consul Agent & Process Config') {
             jFile.each { key, value ->
                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
                 println consulKey
-                element1 = "${envname.PORT}"
+                element1 = "${jFile.PORT}"
                 sh '''
+                echo "@@@@@@@@@@@@@@@@@@"
                 echo element1
                 echo "*******************************************"
                 echo ${consulKey}
