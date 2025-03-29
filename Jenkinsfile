@@ -35,14 +35,10 @@ stage('Install Consul Agent & Process Config') {
             unzip zipFile: consulZip
 
             // sh '''
-            //     ls -last
             //     chmod +x consul && rm -rf consul.zip
-            //     ls -last
             //     export PATH=$PWD:$PATH
             //     consul --version
-            //     ls -la
-            //     curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
-            //     ls -l
+            //     curl $CONSUL_HTTP_ADDR/\\?recurse=true
             // '''
 
             // Process Config Map JSON & Upload to Consul
@@ -50,15 +46,11 @@ stage('Install Consul Agent & Process Config') {
             jFile.each { key, value ->
                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
                 println consulKey
+                element1 = "${envname.PORT}"
                 sh '''
-                echo "*******************************************"
-                ls -la
-                echo $CONSUL_HTTP_ADDR
-                echo $BRANCH_NAME
-                curl $CONSUL_HTTP_ADDR/\\?recurse=true
+                echo element1
                 echo "*******************************************"
                 echo ${consulKey}
-                pwd 
                 echo ${value}
                 curl -k --request PUT -d "${value}" "${CONSUL_HTTP_ADDR}/${consulKey}"
                 '''
