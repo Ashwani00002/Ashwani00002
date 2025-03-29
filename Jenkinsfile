@@ -54,7 +54,8 @@ stage('Install Consul Agent & Process Config') {
                 ls -la
                 echo "${env.CONSUL_HTTP_ADDR}"
                 curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
-                curl "${env.CONSUL_HTTP_ADDR}"/v1/kv/\\?recurse=true
+                curl env.CONSUL_HTTP_ADDR/v1/kv/\\?recurse=true
+                ${DB_ENGINE}
                 echo "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$"
                 '''
             }
