@@ -52,7 +52,7 @@ stage('Install Consul Agent & Process Config') {
                 sh '''
                 echo "*******************************************"
                 ls -la
-                echo "${env.CONSUL_HTTP_ADDR}"
+                echo "env.CONSUL_HTTP_ADDR"
                 pwd
                 curl env.CONSUL_HTTP_ADDR/v1/kv/\\?recurse=true
                 echo "*******************************************"
