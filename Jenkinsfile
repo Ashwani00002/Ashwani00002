@@ -34,13 +34,38 @@ stage('Install Consul Agent & Process Config') {
             sh "curl -sSL ${consulUrl} -o ${consulZip}"
             unzip zipFile: consulZip
 
-            // sh '''
-            //     chmod +x consul && rm -rf consul.zip
-            //     export PATH=$PWD:$PATH
-            //     consul --version
-            //     curl $CONSUL_HTTP_ADDR/\\?recurse=true
-            // '''
+            sh '''
+                chmod +x consul && rm -rf consul.zip
+                export PATH=$PWD:$PATH
+                consul --version
+                curl $CONSUL_HTTP_ADDR/\\?recurse=true
+            '''
 
+
+
+                    try {
+                        def jFile = readJSON file: './config-map-env.json'
+
+                        println "JSON data: ${jFile}" // Inspect the JSON structure
+
+                        if (jFile instanceof Map) { // Ensure it's a Map
+                            jFile.each { key, value ->
+                                def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+                                echo "Consul Key: ${consulKey}, Value: ${value}"
+                                sh "curl -k --request PUT -d '${value}' '${CONSUL_HTTP_ADDR}/v1/kv/${consulKey}'"
+                            }
+                        } else {
+                            error "Parsed JSON is not a Map (dictionary)."
+                        }
+
+                    } catch (Exception e) {
+                        error "Failed to process config-map-env.json: ${e.message}"
+                    }
+                }
+            }
+
+            
+/*
             // Process Config Map JSON & Upload to Consul
             def jFile = readJSON file: './config-map-env.json'
             jFile.each { key, value ->
@@ -52,6 +77,7 @@ stage('Install Consul Agent & Process Config') {
                 curl -k --request PUT -d "${value}" "${CONSUL_HTTP_ADDR}/${consulKey}"
                 '''
             }
+*/            
         }
     }
 }
