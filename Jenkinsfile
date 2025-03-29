@@ -38,33 +38,28 @@ pipeline {
                         consul --version
                         ls -la
                         curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
-                        echo "***************************************************"
-                        while read -r key; do
-                        value=$(curl --silent "http://54.81.175.213:8500/v1/kv/$key" | jq -r '.[].Value' | base64 --decode)
-                        echo "$key -- $value"
-                        done < <(curl --silent "http://54.81.175.213:8500/v1/kv/?keys" | jq -r '.[]')
-                        echo "***************************************************"
+                        ls -l
                     '''
                 }
             }
         }
-/*
-        // stage('Process Config Map JSON & Upload to Consul') {
-        //     steps {
-        //         script {
-        //             def jsonFile = 'config-map-env.json'
-        //             if (fileExists(jsonFile)) {
-        //                 def config = readJSON file: jsonFile
-        //                 config.each { key, value ->
-        //                     def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-        //                     sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
-        //                 }
-        //             } else {
-        //                 error "config-map-env.json not found!"
-        //             }
-        //         }
-        //     }
-        // }
-*/
+
+        stage('Process Config Map JSON & Upload to Consul') {
+            steps {
+                script {
+                    def jsonFile = 'config-map-env.json'
+                    if (fileExists(jsonFile)) {
+                        def config = readJSON file: jsonFile
+                        config.each { key, value ->
+                            def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+                            sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
+                        }
+                    } else {
+                        error "config-map-env.json not found!"
+                    }
+                }
+            }
+        }
+
     }
 }
