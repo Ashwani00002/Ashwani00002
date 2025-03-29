@@ -24,38 +24,62 @@ pipeline {
             }
         }
 
-        stage('Install Consul Agent') {
-            steps {
-                script {
-                    // Example installation for Linux. Adjust for your OS
-                    sh '''
-                        curl -sSL https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip -o consul.zip 
-                        unzip consul.zip
-                        ls -last
-                        chmod +x consul && rm -rf consul.zip
-                        ls -last
-                        export PATH=$PWD:$PATH
-                        consul --version
-                        ls -la
-                        curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
-                        ls -l
-                    '''
-                }
-            }
-        }
-
-stage('Process Config Map JSON & Upload to Consul') {
+stage('Install Consul Agent') {
     steps {
         script {
-            def jFile = readJSON file: 'config-map-env.json'
-            // def props = readJSON text: '{ "key": "value" }'
-            jFile.each { key, value ->
-                def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-                sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
-            }
+            def consulZip = 'consul.zip'
+            def consulUrl = 'https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip'
+
+            sh "curl -sSL ${consulUrl} -o ${consulZip}"
+
+            unzip zipFile: consulZip
+
+            sh '''
+                ls -last
+                chmod +x consul && rm -rf consul.zip
+                ls -last
+                export PATH=$PWD:$PATH
+                consul --version
+                ls -la
+                curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
+                ls -l
+            '''
         }
     }
 }
+
+        // stage('Install Consul Agent') {
+        //     steps {
+        //         script {
+        //             // Example installation for Linux. Adjust for your OS
+        //             sh '''
+        //                 curl -sSL https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip -o consul.zip 
+        //                 unzip consul.zip
+        //                 ls -last
+        //                 chmod +x consul && rm -rf consul.zip
+        //                 ls -last
+        //                 export PATH=$PWD:$PATH
+        //                 consul --version
+        //                 ls -la
+        //                 curl http://54.81.175.213:8500/v1/kv/\\?recurse=true
+        //                 ls -l
+        //             '''
+        //         }
+        //     }
+        // }
+
+// stage('Process Config Map JSON & Upload to Consul') {
+//     steps {
+//         script {
+//             def jFile = readJSON file: 'config-map-env.json'
+//             // def props = readJSON text: '{ "key": "value" }'
+//             jFile.each { key, value ->
+//                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+//                 sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
+//             }
+//         }
+//     }
+// }
 
 
         // stage('Process Config Map JSON & Upload to Consul') {
