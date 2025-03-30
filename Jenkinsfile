@@ -63,13 +63,8 @@ stage('Install Consul Agent & Process Config') {
                             jFile.each { key, value ->
                                 def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
                                 echo "Consul Key: ${consulKey}, Value: ${value}"
-                                sh '''
-                                echo "*******************************************"
-                                echo "*******************************************"
-                                curl -k --request PUT -d '${value}' '${CONSUL_HTTP_ADDR}/${consulKey}'
-                                echo "*******************************************"
-                                curl $CONSUL_HTTP_ADDR/\\?recurse=true
-                                '''
+                                sh "curl -k --request PUT -d '${value}' '${CONSUL_HTTP_ADDR}/${consulKey}'"
+                                sh "curl $CONSUL_HTTP_ADDR/\\?recurse=true"
                             }
                         } else {
                             error "Parsed JSON is not a Map (dictionary)."
