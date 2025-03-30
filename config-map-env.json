@@ -1,5 +1,5 @@
 {
-    "PORT": "8080",
-    "APP_URL":"http://localhost:30001/api/v1",
-    "DATABASE_HOST": "my-db-server"
+    "PORT": "8081",
+    "APP_URL": "https://api.delhivery.com/v2",
+    "DATABASE_HOST": "db.delhivery.com"
 }
