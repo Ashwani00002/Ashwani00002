@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        CONSUL_HTTP_ADDR = 'http://54.81.175.213:8500/v1/kv' // Replace with your Consul endpoint
+        CONSUL_HTTP_ADDR = 'http://18.234.85.3:8500/v1/kv' // Replace with your Consul endpoint
         
     }
 
@@ -41,6 +41,17 @@ stage('Install Consul Agent & Process Config') {
                 curl $CONSUL_HTTP_ADDR/\\?recurse=true
             '''
 
+            // Process Config Map JSON & Upload to Consul
+            // def jFile = readJSON file: './config-map-env.json'
+            // jFile.each { key, value ->
+            //     def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
+            //     echo "Consul Key: ${consulKey}, Value: ${value}" 
+            //     sh '''
+            //     echo "@@@@@@@@@@@@@@@@@@"
+            //     echo "*******************************************"
+            //     curl -k --request PUT -d "${value}" "${CONSUL_HTTP_ADDR}/${consulKey}"
+            //     '''
+            // }
 
 
                     try {
@@ -61,26 +72,11 @@ stage('Install Consul Agent & Process Config') {
                     } catch (Exception e) {
                         error "Failed to process config-map-env.json: ${e.message}"
                     }
+
+
                 }
             }
-
-            
-/*
-            // Process Config Map JSON & Upload to Consul
-            def jFile = readJSON file: './config-map-env.json'
-            jFile.each { key, value ->
-                def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-                echo "Consul Key: ${consulKey}, Value: ${value}" 
-                sh '''
-                echo "@@@@@@@@@@@@@@@@@@"
-                echo "*******************************************"
-                curl -k --request PUT -d "${value}" "${CONSUL_HTTP_ADDR}/${consulKey}"
-                '''
-            }
-*/            
         }
-    }
-}
 
     }
 }
