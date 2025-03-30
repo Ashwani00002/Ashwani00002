@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        CONSUL_HTTP_ADDR = 'http://18.234.85.3:8500/v1/kv' // Replace with your Consul endpoint
+        CONSUL_HTTP_ADDR = 'http://44.220.131.6:8500/v1/kv' // Replace with your Consul endpoint
         
     }
 
