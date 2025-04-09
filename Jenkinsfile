@@ -2,82 +2,88 @@ pipeline {
     agent any
 
     environment {
-        CONSUL_HTTP_ADDR = 'http://44.220.131.6:8500/v1/kv'  // Replace with your Consul endpoint
-        
+        CONSUL_HTTP_ADDR = 'http://34.238.184.38:8500/v1/kv' // Replace with your Consul endpoint
     }
 
     stages {
-        stage('Checkout & Parse Branch Name') {
+        stage('Checkout & Read DEX Configuration') {
             steps {
                 script {
-                    def branchName = env.GIT_BRANCH.replace('origin/', '') // Remove 'origin/' if present
-                    def parts = branchName.split('\\.')
-                    if (parts.size() == 3) {
-                        env.ENV = parts[0]
-                        env.CLUSTER = parts[1]
-                        env.APPLICATION_CONFIG_MAP = parts[2]
-                        echo "ENV: ${env.ENV}, CLUSTER: ${env.CLUSTER}, APPLICATION_CONFIG_MAP: ${env.APPLICATION_CONFIG_MAP}"
-                    } else {
-                        error "Invalid branch name format. Expected: env.cluster.application-config-map"
-                    }
-                }
-                checkout scm
-            }
-        }
-stage('Install Consul Agent & Process Config') {
-    steps {
-        script {
-            // Install Consul Agent
-            def consulZip = 'consul.zip'
-            def consulUrl = 'https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip'
+                    checkout scm
 
-            sh "curl -sSL ${consulUrl} -o ${consulZip}"
-            unzip zipFile: consulZip
-
-            sh '''
-                chmod +x consul && rm -rf consul.zip
-                export PATH=$PWD:$PATH
-                consul --version
-                curl $CONSUL_HTTP_ADDR/\\?recurse=true
-            '''
-
-            // Process Config Map JSON & Upload to Consul
-            // def jFile = readJSON file: './config-map-env.json'
-            // jFile.each { key, value ->
-            //     def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-            //     echo "Consul Key: ${consulKey}, Value: ${value}" 
-            //     sh '''
-            //     echo "@@@@@@@@@@@@@@@@@@"
-            //     echo "*******************************************"
-            //     curl -k --request PUT -d "${value}" "${CONSUL_HTTP_ADDR}/${consulKey}"
-            //     '''
-            // }
-
-
+                    def dexConfig
                     try {
-                        def jFile = readJSON file: './config-map-env.json'
-
-                        println "JSON data: ${jFile}" // Inspect the JSON structure
-
-                        if (jFile instanceof Map) { // Ensure it's a Map
-                            jFile.each { key, value ->
-                                def consulKey = "${env.ENV}/${env.CLUSTER}/${env.APPLICATION_CONFIG_MAP}/${key}"
-                                echo "Consul Key: ${consulKey}, Value: ${value}"
-                                sh "curl -k --request PUT -d '${value}' '${CONSUL_HTTP_ADDR}/${consulKey}'"
-                                sh "curl $CONSUL_HTTP_ADDR/\\?recurse=true"
-                            }
-                        } else {
-                            error "Parsed JSON is not a Map (dictionary)."
+                        dexConfig = readJSON file: 'dex-config.json'
+                        if (!dexConfig) {
+                            error "dex-config.json is empty or invalid."
                         }
-
                     } catch (Exception e) {
-                        error "Failed to process config-map-env.json: ${e.message}"
+                        error "Error reading dex-config.json: ${e.getMessage()}"
                     }
 
+                    env.DEX_BU = dexConfig?.BU
+                    env.DEX_TEAM = dexConfig?.Team
+                    env.DEX_APP = dexConfig?.Application
+                    env.DEX_ENV = dexConfig?.env
 
+                    if (!env.DEX_BU || !env.DEX_TEAM || !env.DEX_APP || !env.DEX_ENV) {
+                        error "Missing top-level DEX identifiers (BU, Team, Application, env) in dex-config.json"
+                    }
+
+                    env.CONSUL_BASE_PREFIX = "${env.DEX_ENV}_${env.DEX_BU}/${env.DEX_TEAM}/${env.DEX_APP}"
+                    echo "Consul Base Prefix: ${env.CONSUL_BASE_PREFIX}"
                 }
             }
         }
 
+        stage('Install Consul Agent') {
+            steps {
+                script {
+                    // Install Consul Agent
+                    def consulZip = 'consul.zip'
+                    def consulUrl = 'https://releases.hashicorp.com/consul/1.10.0/consul_1.10.0_linux_amd64.zip'
+
+                    sh "curl -sSL ${consulUrl} -o ${consulZip}"
+                    unzip zipFile: consulZip
+
+                    sh '''
+                        chmod +x consul && rm -rf consul.zip
+                        export PATH=$PWD:$PATH
+                        consul --version
+                        curl $CONSUL_HTTP_ADDR/\\?recurse=true
+                    '''
+                }
+            }
+        }
+
+        // stage('Upload DEX Configuration to Consul') {
+        //     steps {
+        //         script {
+        //             def dexConfig = readJSON file: 'dex-config.json'
+
+        //             def uploadConnectorConfig = { connectorType, config ->
+        //                 if (config) {
+        //                     def connectorName = config.keySet().first() // Get "Kafka", "HTTP", "DynamoDB"
+        //                     def connectorConfigData = config[connectorName] // Get the nested config
+        //                     if (connectorName && connectorConfigData) {
+        //                         echo "Uploading ${connectorType} (${connectorName}) configuration..."
+        //                         connectorConfigData.each { key, value ->
+        //                             def consulKey = "${env.CONSUL_BASE_PREFIX}/${connectorType}/${connectorName}/${key}"
+        //                             sh "consul kv put -http-addr=${env.CONSUL_ENDPOINT} ${consulKey} '${value}'"
+        //                         }
+        //                     } else {
+        //                         echo "No valid configuration found for ${connectorType}."
+        //                     }
+        //                 } else {
+        //                     echo "${connectorType} configuration not found in dex-config.json."
+        //                 }
+        //             }
+
+        //             uploadConnectorConfig("SOURCE_CONNECTOR", dexConfig?.SOURCE_CONNECTOR)
+        //             uploadConnectorConfig("TASK_CONNECTOR", dexConfig?.TASK_CONNECTOR)
+        //             uploadConnectorConfig("SINK_CONNECTOR", dexConfig?.SINK_CONNECTOR)
+        //         }
+        //     }
+        // }
     }
 }
